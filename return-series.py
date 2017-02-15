@@ -5,13 +5,14 @@ from datetime import datetime
 from datetime import timedelta
 import matplotlib
 import matplotlib.pyplot as plt
+import pyfolio as pf
 
 now = datetime.now()
 start = datetime.strptime("01-02-2014", "%m-%d-%Y")
 base_url = 'http://ws.spk.gov.tr/PortfolioValues/api/PortfoyDegerleri/'
 
 portfolio = pd.DataFrame({'Name': [],'Number': [],'Price': []})
-backtrack = pd.DataFrame(index=pd.date_range(start, now), columns = ['MarketValue', 'Cost', 'ReturnSeries'])
+backtrack = pd.DataFrame(index=pd.date_range(start, now, dtype='datetime64[ns]'), columns = ['MarketValue', 'Cost', 'ReturnSeries'])
 backtrack = backtrack.fillna(0)
 money = int(raw_input("Starting money:"))
 monthly_money = int(raw_input("Montly investment:"))
@@ -71,5 +72,7 @@ for stock in code_list:
 backtrack = backtrack[backtrack.MarketValue != 0]
 plt.plot(backtrack['ReturnSeries'])
 plt.savefig('x.png')
-
-print backtrack
+new = backtrack['ReturnSeries']
+new = new.tz_localize('utc')
+print new
+print pf.create_returns_tear_sheet(new)
